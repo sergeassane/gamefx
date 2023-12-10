@@ -1,19 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const gameContainer = document.getElementById('game-container');
     const attemptsElement = document.getElementById('attempts');
     const timerElement = document.getElementById('timer');
     const gameOverElement = document.getElementById('game-over');
-    const startGameButton = document.getElementById('start-game');
     const grid = document.querySelector('#game-board');
     const startButton = document.getElementById('start-game');
 
     let cardsChosen = [];
     let cardsChosenId = [];
     let cardsWon = [];
-    let cards = [];
-    let hasFlippedCard = false;
-    let lockBoard = false;
-    let firstCard, secondCard;
     let matches = 0;
     let attempts = 3;
     let seconds = 0;
@@ -42,13 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: 'card10', img:'images/ima10.png' },
 // ...add more pairs as needed
 ];
-    function createCard(value) {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.dataset.value = value;
-        card.addEventListener('click', flipCard);
-        gameContainer.appendChild(card);
-    }
 
     function shuffle(array) {
         array.sort(() => 0.5 - Math.random());
@@ -137,28 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Congratulations! You found them all!');
         }
     }
-    function createCards() {
-        for (let i = 0; i < 4; i++) {
-            createCard(i + 1);
-            createCard(i + 1);
-        }
-    }
-
-    function flipCard() {
-        if (lockBoard) return;
-        if (this === firstCard) return;
-
-        this.classList.add('flip');
-
-        if (!hasFlippedCard) {
-            hasFlippedCard = true;
-            firstCard = this;
-            return;
-        }
-
-        secondCard = this;
-        checkForMatch();
-    }
+   
 
     function checkForMatch() {
         const isMatch = firstCard.dataset.value === secondCard.dataset.value;
@@ -255,5 +221,3 @@ document.addEventListener('DOMContentLoaded', function () {
         createCards();
     }
 
-    init();
-});
