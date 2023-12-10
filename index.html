@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VICTORY GAME</title>
-    <link rel="stylesheet" href="styles.css">
-
-       
+    <title>Matching Card Game</title>
+    <style>
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(2, 100px);
+            gap: 10px;
+        }
+        .card {
+            width: 90px;
+            height: 75px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
@@ -21,7 +35,143 @@
     <p id="game-over" style="display: none; color: red;">Game Over!</p>
     <div class="game-container" id="game-container"></div>
 </div>
-<script src="script.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const gameContainer = document.getElementById('game-container');
+        const attemptsElement = document.getElementById('attempts');
+        const timerElement = document.getElementById('timer');
+        const gameOverElement = document.getElementById('game-over');
+        const startGameButton = document.getElementById('start-game');
+        let cardsChosen = [];
+        let cardsChosenId = [];
+        let cardsWon = [];
+        let attempts = 3;
+        let seconds = 0;
+        let timer;
+
+        const cardArray = [
+            { name: 'card1', img: 'images/ima1.png' },
+            { name: 'card1', img: 'images/ima1.png' },
+            { name: 'card2', img: 'images/ima2.png' },
+            { name: 'card2', img: 'images/ima2.png'},
+            { name: 'card3', img: 'images/ima3.png' },
+            { name: 'card3', img: 'images/ima3.png' },
+            { name: 'card4', img: 'images/ima4.png' },
+            { name: 'card4', img: 'images/ima4.png' },
+            { name: 'card5', img: 'images/ima5.png' },
+            { name: 'card5', img: 'images/ima5.png' },
+            { name: 'card6', img: 'images/ima6.png' },
+            { name: 'card6', img: 'images/ima6.png' },
+            { name: 'card7', img: 'images/ima7.png' },
+            { name: 'card7', img: 'images/ima7.png' },
+            { name: 'card8', img: 'images/ima8.png' },
+            { name: 'card8', img: 'images/ima8.png' },
+            { name: 'card9', img: 'images/ima9.png' },
+            { name: 'card9', img: 'images/ima9.png' },
+            { name: 'card10', img:'images/ima10.png'},
+            { name: 'card10', img:'images/ima10.png' },
+            // ... add other card objects ...
+        ];
+
+        function shuffle(array) {
+            array.sort(() => 0.5 - Math.random());
+        }
+
+        function createBoard() {
+            shuffle(cardArray);
+            gameContainer.innerHTML = '';
+            cardsWon = [];
+            attempts = 3;
+            seconds = 0;
+            attemptsElement.textContent = `Attempts left: ${attempts}`;
+            timerElement.textContent = `Time: ${seconds}s`;
+            gameOverElement.style.display = 'none';
+
+            for (let i = 0; i < cardArray.length; i++) {
+                const card = document.createElement('img');
+                card.classList.add('card');
+                card.setAttribute('src', 'images/blank.png');
+                card.setAttribute('data-id', i);
+                card.addEventListener('click', flipCard);
+                gameContainer.appendChild(card);
+            }
+
+            startTimer();
+        }
+
+        function flipCard() {
+            if (attempts === 0 || seconds >= 120) {
+                gameOver(false);
+                return;
+            }
+
+            let cardId = this.getAttribute('data-id');
+            if (!cardsChosenId.includes(cardId)) {
+                cardsChosen.push(cardArray[cardId].name);
+                cardsChosenId.push(cardId);
+                this.setAttribute('src', cardArray[cardId].img);
+                if (cardsChosen.length === 2) {
+                    setTimeout(checkForMatch, 500);
+                }
+            }
+        }
+
+        function checkForMatch() {
+            const cards = document.querySelectorAll('#game-board img');
+            const firstCardId = cardsChosenId[0];
+            const secondCardId = cardsChosenId[1];
+
+            if (cardsChosen[0] === cardsChosen[1] && firstCardId !== secondCardId) {
+                cards[firstCardId].style.visibility = 'hidden';
+                cards[secondCardId].style.visibility = 'hidden';
+                cards[firstCardId].removeEventListener('click', flipCard);
+                cards[secondCardId].removeEventListener('click', flipCard);
+                cardsWon.push(cardsChosen);
+            } else {
+                cards[firstCardId].setAttribute('src', 'images/blank.png');
+                cards[secondCardId].setAttribute('src', 'images/blank.png');
+                attempts--;
+                attemptsElement.textContent = `Attempts left: ${attempts}`;
+            }
+
+            cardsChosen = [];
+            cardsChosenId = [];
+
+            if (cardsWon.length === cardArray.length / 2) {
+                gameOver(true);
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                seconds++;
+                timerElement.textContent = `Time: ${seconds}s`;
+
+                if (seconds >= 120 || attempts === 0) {
+                    gameOver(false);
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        function gameOver(win) {
+            stopTimer();
+            if (!win) {
+                gameOverElement.textContent = 'Game Over! You ran out of attempts or time.';
+                gameOverElement.style.display = 'block';
+            } else {
+                gameOverElement.textContent = 'Congratulations! You matched all cards!';
+                gameOverElement.style.display = 'block';
+            }
+        }
+
+        startGameButton.addEventListener('click', createBoard);
+    });
+</script>
 
 </body>
 </html>
